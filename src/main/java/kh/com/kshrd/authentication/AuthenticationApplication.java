@@ -18,8 +18,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
                 license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0")
         ),
         servers = {
-                @Server(url = "http://localhost:8081", description = "Local"),
-                @Server(url = "https://api.example.com", description = "Production")
+                @Server(url = "/"),
         },
         tags = {
                 @Tag(name = "Authentication", description = "Endpoints for registration, login, token refresh, and logout")
