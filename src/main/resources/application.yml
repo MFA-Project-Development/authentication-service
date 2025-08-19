@@ -32,6 +32,9 @@ spring:
       port: ${SPRING_DATA_REDIS_PORT}
       password: ${SPRING_DATA_REDIS_PASSWORD}
 
+server:
+  port: 8081
+
 keycloak:
   server-url: ${KEYCLOAK_SERVER_URL}
   realm: ${KEYCLOAK_REALM}
