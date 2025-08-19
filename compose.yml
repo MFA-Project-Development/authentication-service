@@ -3,6 +3,41 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    restart: always
     ports:
       - "8002:8080"
+    restart: always
+
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+
+      # OAUTH2 / SECURITY
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: https://keycloak.dara-it.site/realms/mfa
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: https://keycloak.dara-it.site/realms/mfa/protocol/openid-connect/certs
+
+      # KEYCLOAK CONFIG
+      KEYCLOAK_SERVER_URL: https://keycloak.dara-it.site/
+      KEYCLOAK_REALM: mfa
+      KEYCLOAK_CLIENT_ID: mfa-client
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
+      KEYCLOAK_TOKEN_ENDPOINT: https://keycloak.dara-it.site/realms/mfa/protocol/openid-connect/token
+      KEYCLOAK_END_SESSION_ENDPOINT: https://keycloak.dara-it.site/realms/mfa/protocol/openid-connect/logout
+
+      # MAIL CONFIG
+      SPRING_MAIL_HOST: smtp.gmail.com
+      SPRING_MAIL_PORT: 587
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "true"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
+
+      # REDIS CONFIG
+      SPRING_DATA_REDIS_HOST: 35.198.244.32
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: ${SPRING_DATA_REDIS_PASSWORD}
+
+    # Health Check
+    healthcheck:
+      test: ["CMD", "bash", "-lc", "exec 3<>/dev/tcp/127.0.0.1/8080 && echo -e 'GET /actuator/health HTTP/1.1\r\nHost: localhost\r\n\r\n' >&3 && cat <&3 | grep -q 'UP'"]
+      interval: 10s
+      timeout: 3s
+      retries: 10

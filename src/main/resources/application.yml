@@ -22,18 +22,15 @@ spring:
     properties:
       mail:
         smtp:
-          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH}
+          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH:true}
           starttls:
-            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}
+            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE:true}
 
   data:
     redis:
       host: ${SPRING_DATA_REDIS_HOST}
       port: ${SPRING_DATA_REDIS_PORT}
       password: ${SPRING_DATA_REDIS_PASSWORD}
-
-server:
-  port: 8081
 
 keycloak:
   server-url: ${KEYCLOAK_SERVER_URL}
@@ -42,4 +39,3 @@ keycloak:
   client-secret: ${KEYCLOAK_CLIENT_SECRET}
   token-endpoint: ${KEYCLOAK_TOKEN_ENDPOINT}
   end-session-endpoint: ${KEYCLOAK_END_SESSION_ENDPOINT}
-
