@@ -1,8 +1,8 @@
 package kh.com.kshrd.authentication.service.serviceimpl;
 
+import kh.com.kshrd.authentication.exception.NotFoundException;
 import kh.com.kshrd.authentication.model.dto.request.ProfileRequest;
 import kh.com.kshrd.authentication.model.entity.User;
-import kh.com.kshrd.authentication.model.enums.Role;
 import kh.com.kshrd.authentication.service.AuthenticationService;
 import kh.com.kshrd.authentication.service.ProfileService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +32,15 @@ public class ProfileServiceImpl implements ProfileService {
         String userId = authenticationService.getJwt().getSubject();
 
         UserResource userRes = users.get(userId);
-        UserRepresentation userRep = userRes.toRepresentation();
+        UserRepresentation userRep;
+
+        try {
+            userRep = userRes.toRepresentation();
+        } catch (Exception e) {
+            throw new NotFoundException(
+                    "User not found : " + userId
+            );
+        }
 
         List<RoleRepresentation> directRealmRoles = userRes.roles()
                 .realmLevel()
@@ -52,15 +59,21 @@ public class ProfileServiceImpl implements ProfileService {
         String userId = authenticationService.getJwt().getSubject();
 
         UserResource userRes = users.get(userId);
-        UserRepresentation userRep = userRes.toRepresentation();
+        UserRepresentation userRep;
+
+        try {
+            userRep = userRes.toRepresentation();
+        } catch (Exception e) {
+            throw new NotFoundException(
+                    "User not found : " + userId
+            );
+        }
 
         userRep.setFirstName(request.getFirstName());
         userRep.setLastName(request.getLastName());
         userRep.singleAttribute("image", request.getProfileImage());
 
         userRes.update(userRep);
-
-        userRep = userRes.toRepresentation();
 
         List<RoleRepresentation> directRealmRoles = userRes.roles()
                 .realmLevel()
@@ -72,5 +85,21 @@ public class ProfileServiceImpl implements ProfileService {
 
         return User.toResponse(roleName, userRep);
     }
+
+    @Override
+    public void deleteProfileInfo() {
+        UsersResource users = keycloak.realm(realm).users();
+        String userId = authenticationService.getJwt().getSubject();
+        UserResource userRes = users.get(userId);
+        try {
+            userRes.toRepresentation();
+            userRes.remove();
+        } catch (Exception e) {
+            throw new NotFoundException(
+                    "User not found : " + userId
+            );
+        }
+    }
+
 
 }

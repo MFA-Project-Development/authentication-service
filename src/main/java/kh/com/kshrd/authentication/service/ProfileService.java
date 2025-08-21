@@ -7,4 +7,6 @@ public interface ProfileService {
     User profileInfo();
 
     User updateProfileInfo(ProfileRequest request);
+
+    void deleteProfileInfo();
 }
