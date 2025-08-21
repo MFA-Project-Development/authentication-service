@@ -1,8 +1,10 @@
 package kh.com.kshrd.authentication.service;
 
 import kh.com.kshrd.authentication.model.dto.request.*;
-import kh.com.kshrd.authentication.model.entity.Session;
+import kh.com.kshrd.authentication.model.dto.response.SessionResponse;
 import kh.com.kshrd.authentication.model.entity.User;
+import org.springframework.security.oauth2.jwt.Jwt;
+
 
 public interface AuthenticationService {
 
@@ -16,9 +18,11 @@ public interface AuthenticationService {
 
     void passwordResetVerification(PasswordResetVerificationRequest request);
 
-    Session sessions(SessionRequest request);
+    SessionResponse sessions(SessionRequest request);
 
-    Session sessionRefresh(RefreshRequest request);
+    SessionResponse sessionRefresh(RefreshRequest request);
 
     void sessionLogout(RefreshRequest request);
+
+    Jwt getJwt();
 }

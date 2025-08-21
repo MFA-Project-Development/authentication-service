@@ -1,9 +1,14 @@
 package kh.com.kshrd.authentication;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.security.OAuthFlow;
+import io.swagger.v3.oas.annotations.security.OAuthFlows;
+import io.swagger.v3.oas.annotations.security.OAuthScope;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.boot.SpringApplication;
@@ -23,6 +28,24 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
         tags = {
                 @Tag(name = "Authentication", description = "Endpoints for registration, login, token refresh, and logout")
         }
+)
+@SecurityScheme(
+        name = "mfa",
+        type = SecuritySchemeType.OAUTH2,
+        flows = @OAuthFlows(
+                clientCredentials = @OAuthFlow(
+                        tokenUrl = "https://keycloak.dara-it.site/realms/mfa/protocol/openid-connect/token",
+                        scopes = {
+                                @OAuthScope(name = "openid", description = "OpenID Connect scope")
+                        }
+                ),
+                password = @OAuthFlow(
+                        tokenUrl = "https://keycloak.dara-it.site/realms/mfa/protocol/openid-connect/token",
+                        scopes = {
+                                @OAuthScope(name = "openid", description = "OpenID Connect scope")
+                        }
+                )
+        )
 )
 @SpringBootApplication
 public class AuthenticationApplication {

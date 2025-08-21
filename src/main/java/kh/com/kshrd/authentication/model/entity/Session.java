@@ -1,6 +1,6 @@
 package kh.com.kshrd.authentication.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import kh.com.kshrd.authentication.model.dto.response.SessionResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Session {
 
     @JsonProperty("access_token")
@@ -24,9 +23,8 @@ public class Session {
     @JsonProperty("id_token")
     private String idToken;
 
-    @Builder.Default
     @JsonProperty("token_type")
-    private String tokenType = "Bearer";
+    private String tokenType;
 
     @JsonProperty("expires_in")
     private long expiresIn;
@@ -35,11 +33,25 @@ public class Session {
     private Long refreshExpiresIn;
 
     @JsonProperty("not-before-policy")
-    private long NotBeforePolicy;
+    private long notBeforePolicy;
 
     @JsonProperty("session_state")
     private String sessionState;
 
     @JsonProperty("scope")
     private String scope;
+
+    public SessionResponse toResponse(){
+        return SessionResponse.builder()
+                .accessToken(this.accessToken)
+                .refreshToken(this.refreshToken)
+                .idToken(this.idToken)
+                .tokenType(this.tokenType)
+                .expiresIn(this.expiresIn)
+                .refreshExpiresIn(this.refreshExpiresIn)
+                .notBeforePolicy(this.notBeforePolicy)
+                .sessionState(this.sessionState)
+                .scope(this.scope)
+                .build();
+    }
 }

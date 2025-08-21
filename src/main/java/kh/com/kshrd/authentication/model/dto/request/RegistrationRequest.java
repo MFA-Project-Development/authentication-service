@@ -35,4 +35,6 @@ public class RegistrationRequest {
 
     @NotNull(message = "Role must be one of: TEACHER, STUDENT, ADMIN")
     private Role role;
+
+    private String profileImage;
 }

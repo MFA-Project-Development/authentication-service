@@ -6,8 +6,9 @@ import kh.com.kshrd.authentication.exception.ConflictException;
 import kh.com.kshrd.authentication.exception.NotFoundException;
 import kh.com.kshrd.authentication.exception.UpstreamException;
 import kh.com.kshrd.authentication.model.dto.request.*;
-import kh.com.kshrd.authentication.model.entity.Session;
+import kh.com.kshrd.authentication.model.dto.response.SessionResponse;
 import kh.com.kshrd.authentication.model.entity.User;
+import kh.com.kshrd.authentication.model.entity.Session;
 import kh.com.kshrd.authentication.model.enums.Role;
 import kh.com.kshrd.authentication.service.AuthenticationService;
 import kh.com.kshrd.authentication.service.EmailService;
@@ -22,6 +23,10 @@ import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -92,6 +97,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         .firstName(userRep.getFirstName())
                         .lastName(userRep.getLastName())
                         .role(mapRoleSafely(request.getRole()))
+                        .profileImage(request.getProfileImage())
                         .build();
             }
 
@@ -183,7 +189,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public Session sessions(SessionRequest request) {
+    public SessionResponse sessions(SessionRequest request) {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("grant_type", "password");
         form.add("client_id", clientId);
@@ -191,27 +197,31 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         form.add("username", request.getEmail());
         form.add("password", request.getPassword());
         form.add("scope", "openid email profile");
-        return restClient.post()
+        Session session = restClient.post()
                 .uri(tokenEndpoint)
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(form)
                 .retrieve()
                 .body(Session.class);
+        assert session != null;
+        return session.toResponse();
     }
 
     @Override
-    public Session sessionRefresh(RefreshRequest request) {
+    public SessionResponse sessionRefresh(RefreshRequest request) {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("grant_type", "refresh_token");
         form.add("client_id", clientId);
         if (!clientSecret.isBlank()) form.add("client_secret", clientSecret);
         form.add("refresh_token", request.getRefreshToken());
-        return restClient.post()
+        Session session = restClient.post()
                 .uri(tokenEndpoint)
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(form)
                 .retrieve()
                 .body(Session.class);
+        assert session != null;
+        return session.toResponse();
     }
 
     @Override
@@ -229,6 +239,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .toBodilessEntity();
     }
 
+    @Override
+    public Jwt getJwt() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth instanceof JwtAuthenticationToken jwtAuth) {
+            return jwtAuth.getToken();
+        }
+        return null;
+    }
+
     private boolean emailExists(UsersResource users, String email) {
         final List<UserRepresentation> hits = users.searchByEmail(email, true);
         return hits != null && !hits.isEmpty();
@@ -240,6 +259,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         u.setEmail(request.getEmail());
         u.setFirstName(request.getFirstName());
         u.setLastName(request.getLastName());
+        u.singleAttribute("image",  request.getProfileImage());
 
         u.setEnabled(false);
         u.setEmailVerified(false);
@@ -269,9 +289,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private void assignRealmRole(String userId, Role requestedRole) {
         final RolesResource roles = keycloak.realm(realm).roles();
 
-        final RoleRepresentation roleRep = roles.get(requestedRole.name()).toRepresentation();
+        final RoleRepresentation roleRep = roles.get(requestedRole.getRoleName()).toRepresentation();
         if (roleRep == null) {
-            throw new NotFoundException("Configured role not found in Keycloak client: " + requestedRole.name());
+            throw new NotFoundException("Configured role not found in Keycloak client: " + requestedRole.getRoleName());
         }
 
         keycloak.realm(realm)

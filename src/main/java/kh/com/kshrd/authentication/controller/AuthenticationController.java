@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import kh.com.kshrd.authentication.model.dto.request.*;
 import kh.com.kshrd.authentication.model.dto.response.APIResponse;
-import kh.com.kshrd.authentication.model.entity.Session;
+import kh.com.kshrd.authentication.model.dto.response.SessionResponse;
 import kh.com.kshrd.authentication.model.entity.User;
 import kh.com.kshrd.authentication.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import static kh.com.kshrd.authentication.utils.ResponseUtil.buildResponse;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/v1/auths")
 @RequiredArgsConstructor
 public class AuthenticationController {
 
@@ -104,7 +104,7 @@ public class AuthenticationController {
             description = "Authenticates a user with email and password. Returns access and refresh tokens for managing the session.",
             tags = "Authentication"
     )
-    public ResponseEntity<APIResponse<Session>> sessions(@RequestBody @Valid SessionRequest request) {
+    public ResponseEntity<APIResponse<SessionResponse>> sessions(@RequestBody @Valid SessionRequest request) {
         return buildResponse("User logged in successfully", authenticationService.sessions(request), HttpStatus.OK);
     }
 
@@ -114,7 +114,7 @@ public class AuthenticationController {
             description = "Generates a new access token using a valid refresh token, keeping the user session active.",
             tags = "Authentication"
     )
-    public ResponseEntity<APIResponse<Session>> sessionRefresh(@RequestBody @Valid RefreshRequest request) {
+    public ResponseEntity<APIResponse<SessionResponse>> sessionRefresh(@RequestBody @Valid RefreshRequest request) {
         return buildResponse("Access token refreshed successfully", authenticationService.sessionRefresh(request), HttpStatus.OK);
     }
 
@@ -124,7 +124,7 @@ public class AuthenticationController {
             description = "Logs out the user by revoking the refresh token and invalidating the active session.",
             tags = "Authentication"
     )
-    public ResponseEntity<APIResponse<Session>> sessionLogout(@RequestBody @Valid RefreshRequest request) {
+    public ResponseEntity<APIResponse<Void>> sessionLogout(@RequestBody @Valid RefreshRequest request) {
         authenticationService.sessionLogout(request);
         return buildResponse("User logged out successfully", null, HttpStatus.OK);
     }

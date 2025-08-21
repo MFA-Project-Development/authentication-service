@@ -11,31 +11,37 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI}
-          jwk-set-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI}
+          issuer-uri: https://keycloak.dara-it.site/realms/mfa
+          jwk-set-uri: https://keycloak.dara-it.site/realms/mfa/protocol/openid-connect/certs
 
   mail:
-    host: ${SPRING_MAIL_HOST}
-    port: ${SPRING_MAIL_PORT}
+    host: smtp.gmail.com
+    port: 587
     username: ${SPRING_MAIL_USERNAME}
     password: ${SPRING_MAIL_PASSWORD}
     properties:
       mail:
         smtp:
-          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH:true}
+          auth: true
           starttls:
-            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE:true}
+            enable: true
 
   data:
     redis:
-      host: ${SPRING_DATA_REDIS_HOST}
-      port: ${SPRING_DATA_REDIS_PORT}
+      host: 35.198.244.32
+      port: 6379
       password: ${SPRING_DATA_REDIS_PASSWORD}
 
 keycloak:
-  server-url: ${KEYCLOAK_SERVER_URL}
-  realm: ${KEYCLOAK_REALM}
-  client-id: ${KEYCLOAK_CLIENT_ID}
+  server-url: https://keycloak.dara-it.site/
+  realm: mfa
+  client-id: mfa-client
   client-secret: ${KEYCLOAK_CLIENT_SECRET}
-  token-endpoint: ${KEYCLOAK_TOKEN_ENDPOINT}
-  end-session-endpoint: ${KEYCLOAK_END_SESSION_ENDPOINT}
+  token-endpoint: https://keycloak.dara-it.site/realms/mfa/protocol/openid-connect/token
+  end-session-endpoint: https://keycloak.dara-it.site/realms/mfa/protocol/openid-connect/logout
+
+springdoc:
+  swagger-ui:
+    oauth:
+      client-id: mfa-client
+      client-secret: ${KEYCLOAK_CLIENT_SECRET}
