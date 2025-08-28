@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.security.OAuthFlows;
 import io.swagger.v3.oas.annotations.security.OAuthScope;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -24,9 +23,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
         ),
         servers = {
                 @Server(url = "/"),
-        },
-        tags = {
-                @Tag(name = "Authentication", description = "Endpoints for registration, login, token refresh, and logout")
         }
 )
 @SecurityScheme(

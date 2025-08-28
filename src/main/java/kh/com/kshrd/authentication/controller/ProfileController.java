@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 import static kh.com.kshrd.authentication.utils.ResponseUtil.buildResponse;
 
 @Slf4j
@@ -52,5 +54,15 @@ public class ProfileController {
     public ResponseEntity<APIResponse<Void>> deleteProfileInfo() {
         profileService.deleteProfileInfo();
         return buildResponse("Profile deleted successfully", null, HttpStatus.OK);
+    }
+
+    @GetMapping("/{user-id}")
+    @Operation(
+            summary = "Get profile information by userId",
+            description = "Fetch the currently authenticated user's profile information including username, email, first name, last name, role, and profile image.",
+            tags = "Profile"
+    )
+    public ResponseEntity<APIResponse<User>> profileInfoByUserId(@PathVariable("user-id") UUID userId) {
+        return buildResponse("Profile retrieved by userId successfully", profileService.profileInfoByUserId(userId), HttpStatus.OK);
     }
 }
