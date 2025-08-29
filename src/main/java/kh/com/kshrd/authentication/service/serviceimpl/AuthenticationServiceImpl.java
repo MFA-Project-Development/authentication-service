@@ -72,7 +72,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         final UsersResource users = keycloak.realm(realm).users();
 
         if (emailExists(users, request.getEmail())) {
-            throw new ConflictException("Email already exists");
+            final List<UserRepresentation> userRepresentations = users.searchByEmail(request.getEmail(), true);
+            final UserRepresentation existing = userRepresentations.getFirst();
+
+            if (existing != null) {
+                if (Boolean.TRUE.equals(existing.isEnabled())) {
+                    throw new ConflictException("Email already exists");
+                }
+
+                users.delete(existing.getId());
+            }
         }
 
         final UserRepresentation userRep = buildUserRepresentation(request);
@@ -84,7 +93,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 final String userId = CreatedResponseUtil.getCreatedId(response);
 
                 users.get(userId).resetPassword(buildPasswordCredential(request.getPassword()));
-
                 assignRealmRole(userId, request.getRole());
 
                 final String otp = otpService.generateOtp(request.getEmail());
@@ -109,6 +117,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new UpstreamException("Keycloak error " + code + (body.isBlank() ? "" : ": " + body));
         }
     }
+
 
     @Override
     public void registrationVerification(RegistrationVerificationRequest request) {
@@ -259,7 +268,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         u.setEmail(request.getEmail());
         u.setFirstName(request.getFirstName());
         u.setLastName(request.getLastName());
-        u.singleAttribute("image",  request.getProfileImage());
+        u.singleAttribute("image", request.getProfileImage());
 
         u.setEnabled(false);
         u.setEmailVerified(false);
