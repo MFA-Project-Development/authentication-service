@@ -55,14 +55,4 @@ public class ProfileController {
         profileService.deleteProfileInfo();
         return buildResponse("Profile deleted successfully", null, HttpStatus.OK);
     }
-
-    @GetMapping("/{user-id}")
-    @Operation(
-            summary = "Get profile information by userId",
-            description = "Fetch the currently authenticated user's profile information including username, email, first name, last name, role, and profile image.",
-            tags = "Profile"
-    )
-    public ResponseEntity<APIResponse<User>> profileInfoByUserId(@PathVariable("user-id") UUID userId) {
-        return buildResponse("Profile retrieved by userId successfully", profileService.profileInfoByUserId(userId), HttpStatus.OK);
-    }
 }

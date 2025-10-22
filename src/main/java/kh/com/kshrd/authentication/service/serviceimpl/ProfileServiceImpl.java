@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -104,34 +103,6 @@ public class ProfileServiceImpl implements ProfileService {
                     "User not found : " + userId
             );
         }
-    }
-
-    @Override
-    public User profileInfoByUserId(UUID userId) {
-        UsersResource users = keycloak.realm(realm).users();
-
-        UserResource userRes = users.get(String.valueOf(userId));
-        UserRepresentation userRep;
-
-        try {
-            userRep = userRes.toRepresentation();
-        } catch (Exception e) {
-            throw new NotFoundException(
-                    "User not found : " + userId
-            );
-        }
-
-        String defaultRole = "default-roles-" + realm;
-
-        List<RoleRepresentation> realmRoles = userRes.roles().realmLevel().listAll();
-
-        String roleName = realmRoles.stream()
-                .map(RoleRepresentation::getName)
-                .filter(name -> !name.equals(defaultRole))
-                .findFirst()
-                .orElse(null);
-
-        return User.toResponse(roleName, userRep);
     }
 
 

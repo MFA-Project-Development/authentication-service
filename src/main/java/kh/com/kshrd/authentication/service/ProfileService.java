@@ -12,5 +12,4 @@ public interface ProfileService {
 
     void deleteProfileInfo();
 
-    User profileInfoByUserId(UUID userId);
 }
