@@ -9,6 +9,7 @@ import kh.com.kshrd.authentication.model.dto.request.*;
 import kh.com.kshrd.authentication.model.dto.response.SessionResponse;
 import kh.com.kshrd.authentication.model.entity.User;
 import kh.com.kshrd.authentication.model.entity.Session;
+import kh.com.kshrd.authentication.model.enums.Gender;
 import kh.com.kshrd.authentication.model.enums.Role;
 import kh.com.kshrd.authentication.service.AuthenticationService;
 import kh.com.kshrd.authentication.service.EmailService;
@@ -33,6 +34,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -105,7 +107,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         .firstName(userRep.getFirstName())
                         .lastName(userRep.getLastName())
                         .role(mapRoleSafely(request.getRole()))
-                        .profileImage(request.getProfileImage())
+                        .profileImage(userRep.getAttributes().get("image").getFirst())
+                        .gender(Objects.equals(userRep.getAttributes().get("gender").getFirst(), "N/A") ? Gender.OTHER : null)
+                        .phone(userRep.getAttributes().get("phone").getFirst())
+                        .dob(Objects.equals(userRep.getAttributes().get("dob").getFirst(), "N/A") ? LocalDate.now() : null)
                         .build();
             }
 
@@ -268,7 +273,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         u.setEmail(request.getEmail());
         u.setFirstName(request.getFirstName());
         u.setLastName(request.getLastName());
-        u.singleAttribute("image", request.getProfileImage());
+        u.singleAttribute("image", "N/A");
+        u.singleAttribute("gender", "N/A");
+        u.singleAttribute("phone", "N/A");
+        u.singleAttribute("dob", "N/A");
 
         u.setEnabled(false);
         u.setEmailVerified(false);

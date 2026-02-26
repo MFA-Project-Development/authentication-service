@@ -74,6 +74,9 @@ public class ProfileServiceImpl implements ProfileService {
         userRep.setFirstName(request.getFirstName());
         userRep.setLastName(request.getLastName());
         userRep.singleAttribute("image", request.getProfileImage());
+        userRep.singleAttribute("gender", request.getGender().getValue());
+        userRep.singleAttribute("phone", request.getPhone());
+        userRep.singleAttribute("dob", request.getDob().toString());
 
         userRes.update(userRep);
 
