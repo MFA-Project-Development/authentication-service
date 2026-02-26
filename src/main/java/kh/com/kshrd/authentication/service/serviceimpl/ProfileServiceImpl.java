@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -73,9 +74,9 @@ public class ProfileServiceImpl implements ProfileService {
 
         userRep.setFirstName(request.getFirstName());
         userRep.setLastName(request.getLastName());
-        userRep.singleAttribute("image", request.getProfileImage());
-        userRep.singleAttribute("gender", request.getGender().getValue());
-        userRep.singleAttribute("phone", request.getPhone());
+        userRep.singleAttribute("image", Objects.equals(request.getProfileImage(), "") ? "N/A" : request.getProfileImage());
+        userRep.singleAttribute("gender", Objects.equals(request.getGender().getValue(), "") ? "N/A" : request.getGender().getValue());
+        userRep.singleAttribute("phone", Objects.equals(request.getPhone(), "") ? "N/A" : request.getPhone());
         userRep.singleAttribute("dob", request.getDob().toString());
 
         userRes.update(userRep);

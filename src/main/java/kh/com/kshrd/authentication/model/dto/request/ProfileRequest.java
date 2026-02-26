@@ -22,8 +22,7 @@ public class ProfileRequest {
     @NotNull
     private String lastName;
 
-    @NotBlank
-    @NotNull
+
     @Pattern(
             regexp = "^(https?://).+",
             message = "Profile image must be a valid URL starting with http:// or https://"
@@ -33,15 +32,12 @@ public class ProfileRequest {
     @NotNull
     private Gender gender;
 
-    @NotBlank
-    @NotNull
     @Pattern(
             regexp = "^\\+?[0-9]{8,20}$",
             message = "Phone number must contain only digits and may start with + (8-20 digits)"
     )
     private String phone;
 
-    @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Past(message = "Date of birth must be in the past")
     @MinAge(value = 7, message = "You must be at least 7 years old")
