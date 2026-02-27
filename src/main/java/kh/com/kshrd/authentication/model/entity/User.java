@@ -1,6 +1,7 @@
 package kh.com.kshrd.authentication.model.entity;
 
 import kh.com.kshrd.authentication.model.enums.Gender;
+import kh.com.kshrd.authentication.model.enums.GradedSchoolType;
 import kh.com.kshrd.authentication.model.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,6 +30,9 @@ public class User {
     private Gender gender;
     private String phone;
     private LocalDate dob;
+    private String schoolName;
+    private GradedSchoolType gradedSchoolType;
+    private String parentPhone;
 
     public static User toResponse(String role, UserRepresentation userRepresentation) {
 
@@ -52,6 +56,9 @@ public class User {
                 .gender(Objects.equals(userRepresentation.getAttributes().get("gender").getFirst(), "N/A") ? Gender.OTHER : Gender.fromValue(userRepresentation.getAttributes().get("gender").getFirst()))
                 .phone(userRepresentation.getAttributes().get("phone").getFirst())
                 .dob(Objects.equals(userRepresentation.getAttributes().get("dob").getFirst(), "N/A") ? LocalDate.now() : LocalDate.parse(userRepresentation.getAttributes().get("dob").getFirst()))
+                .schoolName(userRepresentation.getAttributes().get("schoolName").getFirst())
+                .gradedSchoolType(Objects.equals(userRepresentation.getAttributes().get("gradedSchoolType").getFirst(), "N/A") ? GradedSchoolType.OTHER : GradedSchoolType.fromValue(userRepresentation.getAttributes().get("gradedSchoolType").getFirst()))
+                .parentPhone(userRepresentation.getAttributes().get("parentPhone").getFirst())
                 .build();
     }
 }

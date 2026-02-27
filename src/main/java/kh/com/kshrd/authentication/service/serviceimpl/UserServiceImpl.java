@@ -47,10 +47,8 @@ public class UserServiceImpl implements UserService {
 
             return User.toResponse(roleName, userRep);
 
-        } catch (NotFoundException e) {
-            throw new NotFoundException("User not found: " + userId);
         } catch (Exception e) {
-            throw new RuntimeException("Error retrieving user: " + userId, e);
+            throw new NotFoundException("User not found: " + userId);
         }
     }
 
@@ -76,10 +74,8 @@ public class UserServiceImpl implements UserService {
 
                 userList.add(User.toResponse(roleName, userRep));
 
-            } catch (NotFoundException e) {
-                throw new NotFoundException("User not found: " + userId);
             } catch (Exception e) {
-                throw new RuntimeException("Error retrieving user: " + userId, e);
+                throw new NotFoundException("User not found: " + userId);
             }
         }
 
