@@ -78,6 +78,10 @@ public class ProfileServiceImpl implements ProfileService {
         userRep.singleAttribute("gender", Objects.equals(request.getGender().getValue(), "") ? "N/A" : request.getGender().getValue());
         userRep.singleAttribute("phone", Objects.equals(request.getPhone(), "") ? "N/A" : request.getPhone());
         userRep.singleAttribute("dob", request.getDob().toString());
+        userRep.singleAttribute("schoolName", Objects.equals(request.getSchoolName(), "") ? "N/A" : request.getSchoolName());
+        userRep.singleAttribute("schoolLevel", Objects.equals(request.getSchoolLevel().getType(), "") ? "N/A" : request.getSchoolLevel().getType());
+        userRep.singleAttribute("grade", String.valueOf(request.getGrade()));
+        userRep.singleAttribute("parentPhone", Objects.equals(request.getParentPhone(), "") ? "N/A" : request.getParentPhone());
 
         userRes.update(userRep);
 
