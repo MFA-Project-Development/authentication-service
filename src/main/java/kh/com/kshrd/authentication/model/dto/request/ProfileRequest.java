@@ -3,6 +3,7 @@ package kh.com.kshrd.authentication.model.dto.request;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import kh.com.kshrd.authentication.model.enums.Gender;
+import kh.com.kshrd.authentication.model.enums.GradedSchoolType;
 import kh.com.kshrd.authentication.model.validation.MinAge;
 import lombok.*;
 
@@ -42,4 +43,15 @@ public class ProfileRequest {
     @Past(message = "Date of birth must be in the past")
     @MinAge(value = 7, message = "You must be at least 7 years old")
     private LocalDate dob;
+
+    private String schoolName;
+
+    @NotNull
+    private GradedSchoolType gradedSchoolType;
+
+    @Pattern(
+            regexp = "^\\+?[0-9]{8,20}$",
+            message = "Parent Phone number must contain only digits and may start with + (8-20 digits)"
+    )
+    private String parentPhone;
 }
