@@ -49,7 +49,6 @@ public class ProfileRequest {
     @NotNull
     private SchoolLevel schoolLevel;
 
-    @NotNull
     @Positive
     private Integer grade;
 
