@@ -49,6 +49,10 @@ public class ProfileRequest {
     @NotNull
     private SchoolLevel schoolLevel;
 
+    @NotNull
+    @Positive
+    private Integer grade;
+
     @Pattern(
             regexp = "^\\+?[0-9]{8,20}$",
             message = "Parent Phone number must contain only digits and may start with + (8-20 digits)"
