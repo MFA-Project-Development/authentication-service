@@ -3,7 +3,7 @@ package kh.com.kshrd.authentication.model.enums;
 import lombok.Getter;
 
 @Getter
-public enum GradedSchoolType {
+public enum SchoolLevel {
 
     PRE_PRIMARY("Pre Primary School"),
     PRIMARY("Primary School"),
@@ -16,12 +16,12 @@ public enum GradedSchoolType {
 
     private final String type;
 
-    GradedSchoolType(String type) {
+    SchoolLevel(String type) {
         this.type = type;
     }
 
-    public static GradedSchoolType fromValue(String type) {
-        for (GradedSchoolType gradedSchoolType : GradedSchoolType.values()) {
+    public static SchoolLevel fromValue(String type) {
+        for (SchoolLevel gradedSchoolType : SchoolLevel.values()) {
             if (gradedSchoolType.type.equalsIgnoreCase(type)) {
                 return gradedSchoolType;
             }

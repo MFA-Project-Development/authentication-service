@@ -1,0 +1,53 @@
+services:
+  authentication-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    networks:
+      mfa-private: {}
+      mfa-hostlink:
+        ipv4_address: 172.23.0.20
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JAVA_TOOL_OPTIONS: "-Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true"
+
+      # KEYCLOAK CONFIG
+      KEYCLOAK_SERVER_URL: https://keycloak.dara-it.site/
+      KEYCLOAK_REALM: mfa
+      KEYCLOAK_CLIENT_ID: mfa-client
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
+      KEYCLOAK_TOKEN_ENDPOINT: https://keycloak.dara-it.site/realms/mfa/protocol/openid-connect/token
+      KEYCLOAK_END_SESSION_ENDPOINT: https://keycloak.dara-it.site/realms/mfa/protocol/openid-connect/logout
+
+      # MAIL CONFIG
+      SPRING_MAIL_HOST: smtp.gmail.com
+      SPRING_MAIL_PORT: 587
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "true"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
+
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "http://keycloak:8080/realms/mfa/protocol/openid-connect/certs"
+      # Validate issuer against the public HTTPS URL
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: "https://keycloak.dara-it.site/realms/mfa"
+
+      # REDIS CONFIG
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: ${SPRING_DATA_REDIS_PASSWORD}
+
+      EUREKA_CLIENT_REGISTER_WITH_EUREKA: "true"
+      EUREKA_CLIENT_FETCH_REGISTRY: "true"
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS: "5"
+      EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS: "10"
+      EUREKA_INSTANCE_INSTANCE_ID: "${SPRING_APPLICATION_NAME}:${SERVER_PORT}"
+    extra_hosts:
+      - "keycloak.dara-it.site:172.23.0.1"
+networks:
+  mfa-private:
+    external: true
+  mfa-hostlink:
+    external: true

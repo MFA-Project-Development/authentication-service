@@ -10,7 +10,7 @@ import kh.com.kshrd.authentication.model.dto.response.SessionResponse;
 import kh.com.kshrd.authentication.model.entity.User;
 import kh.com.kshrd.authentication.model.entity.Session;
 import kh.com.kshrd.authentication.model.enums.Gender;
-import kh.com.kshrd.authentication.model.enums.GradedSchoolType;
+import kh.com.kshrd.authentication.model.enums.SchoolLevel;
 import kh.com.kshrd.authentication.model.enums.Role;
 import kh.com.kshrd.authentication.service.AuthenticationService;
 import kh.com.kshrd.authentication.service.EmailService;
@@ -113,7 +113,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         .phone(userRep.getAttributes().get("phone").getFirst())
                         .dob(Objects.equals(userRep.getAttributes().get("dob").getFirst(), "N/A") ? LocalDate.now() : null)
                         .schoolName(userRep.getAttributes().get("schoolName").getFirst())
-                        .gradedSchoolType(Objects.equals(userRep.getAttributes().get("gradedSchoolType").getFirst(), "N/A") ? GradedSchoolType.OTHER : null)
+                        .schoolLevel(Objects.equals(userRep.getAttributes().get("schoolLevel").getFirst(), "N/A") ? SchoolLevel.OTHER : null)
+                        .grade(Objects.equals(userRep.getAttributes().get("grade").getFirst(), "N/A") ? 1 : null)
                         .parentPhone(userRep.getAttributes().get("parentPhone").getFirst())
                         .build();
             }
@@ -282,7 +283,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         u.singleAttribute("phone", "N/A");
         u.singleAttribute("dob", "N/A");
         u.singleAttribute("schoolName", "N/A");
-        u.singleAttribute("gradedSchoolType", "N/A");
+        u.singleAttribute("schoolLevel", "N/A");
+        u.singleAttribute("grade", "N/A");
         u.singleAttribute("parentPhone", "N/A");
 
         u.setEnabled(false);
