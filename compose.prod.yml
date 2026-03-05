@@ -11,6 +11,12 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: prod
       JAVA_TOOL_OPTIONS: "-Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true"
+      TZ: Asia/Seoul
+
+      # --- Database ---
+      SPRING_DATASOURCE_URL: jdbc:postgresql://mfa-phase1-db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
 
       # KEYCLOAK CONFIG
       KEYCLOAK_SERVER_URL: https://keycloak.dara-it.site/
