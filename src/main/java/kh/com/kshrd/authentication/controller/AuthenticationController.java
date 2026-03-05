@@ -1,6 +1,7 @@
 package kh.com.kshrd.authentication.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import kh.com.kshrd.authentication.model.dto.request.*;
 import kh.com.kshrd.authentication.model.dto.response.APIResponse;
@@ -104,8 +105,8 @@ public class AuthenticationController {
             description = "Authenticates a user with email and password. Returns access and refresh tokens for managing the session.",
             tags = "Authentication"
     )
-    public ResponseEntity<APIResponse<SessionResponse>> sessions(@RequestBody @Valid SessionRequest request) {
-        return buildResponse("User logged in successfully", authenticationService.sessions(request), HttpStatus.OK);
+    public ResponseEntity<APIResponse<SessionResponse>> sessions(@RequestBody @Valid SessionRequest request, HttpServletRequest httpRequest) {
+        return buildResponse("User logged in successfully", authenticationService.sessions(request, httpRequest), HttpStatus.OK);
     }
 
     @PostMapping("/sessions/refresh")
@@ -124,8 +125,8 @@ public class AuthenticationController {
             description = "Logs out the user by revoking the refresh token and invalidating the active session.",
             tags = "Authentication"
     )
-    public ResponseEntity<APIResponse<Void>> sessionLogout(@RequestBody @Valid RefreshRequest request) {
-        authenticationService.sessionLogout(request);
+    public ResponseEntity<APIResponse<Void>> sessionLogout(@RequestBody @Valid RefreshRequest request, HttpServletRequest httpRequest) {
+        authenticationService.sessionLogout(request, httpRequest);
         return buildResponse("User logged out successfully", null, HttpStatus.OK);
     }
 

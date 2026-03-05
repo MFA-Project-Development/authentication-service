@@ -1,10 +1,8 @@
 package kh.com.kshrd.authentication.service.serviceimpl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.Response;
-import kh.com.kshrd.authentication.exception.BadRequestException;
-import kh.com.kshrd.authentication.exception.ConflictException;
-import kh.com.kshrd.authentication.exception.NotFoundException;
-import kh.com.kshrd.authentication.exception.UpstreamException;
+import kh.com.kshrd.authentication.exception.*;
 import kh.com.kshrd.authentication.model.dto.request.*;
 import kh.com.kshrd.authentication.model.dto.response.SessionResponse;
 import kh.com.kshrd.authentication.model.entity.User;
@@ -14,6 +12,7 @@ import kh.com.kshrd.authentication.model.enums.SchoolLevel;
 import kh.com.kshrd.authentication.model.enums.Role;
 import kh.com.kshrd.authentication.service.AuthenticationService;
 import kh.com.kshrd.authentication.service.EmailService;
+import kh.com.kshrd.authentication.service.LoginLogService;
 import kh.com.kshrd.authentication.service.OtpService;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.admin.client.CreatedResponseUtil;
@@ -33,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
@@ -53,6 +53,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final OtpService otpService;
     private final EmailService emailService;
     private final RestClient restClient;
+    private final LoginLogService loginLogService;
 
 
     @Value("${keycloak.realm}")
@@ -208,7 +209,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public SessionResponse sessions(SessionRequest request) {
+    public SessionResponse sessions(SessionRequest request, HttpServletRequest httpRequest) {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("grant_type", "password");
         form.add("client_id", clientId);
@@ -216,14 +217,35 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         form.add("username", request.getEmail());
         form.add("password", request.getPassword());
         form.add("scope", "openid email profile");
-        Session session = restClient.post()
-                .uri(tokenEndpoint)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(form)
-                .retrieve()
-                .body(Session.class);
-        assert session != null;
-        return session.toResponse();
+
+        try {
+            Session session = restClient.post()
+                    .uri(tokenEndpoint)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(form)
+                    .retrieve()
+                    .body(Session.class);
+
+            if (session == null) {
+                loginLogService.logFailure(request.getEmail(), "Empty token response", request.getTimezone(), httpRequest);
+                throw new UnauthorizeException("Login failed");
+            }
+
+            loginLogService.logSuccess(request.getEmail(), request.getTimezone(), httpRequest);
+            return session.toResponse();
+
+        } catch (RestClientResponseException ex) {
+            String reason = ex.getStatusCode().is4xxClientError()
+                    ? "Invalid credentials"
+                    : "Auth server error";
+
+            loginLogService.logFailure(request.getEmail(), reason, request.getTimezone(), httpRequest);
+            throw new UnauthorizeException(reason);
+
+        } catch (Exception ex) {
+            loginLogService.logFailure(request.getEmail(), "Server error", request.getTimezone(), httpRequest);
+            throw new InternalServerException("Server error");
+        }
     }
 
     @Override
@@ -244,18 +266,35 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public void sessionLogout(RefreshRequest request) {
+    public void sessionLogout(RefreshRequest request, HttpServletRequest httpRequest) {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("grant_type", "refresh_token");
         form.add("client_id", clientId);
         if (!clientSecret.isBlank()) form.add("client_secret", clientSecret);
         form.add("refresh_token", request.getRefreshToken());
-        restClient.post()
-                .uri(endSessionEndpoint)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(form)
-                .retrieve()
-                .toBodilessEntity();
+
+        try {
+            restClient.post()
+                    .uri(endSessionEndpoint)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(form)
+                    .retrieve()
+                    .toBodilessEntity();
+
+            loginLogService.logoutSuccess(request.getEmail(), request.getTimezone(), httpRequest);
+
+        } catch (RestClientResponseException ex) {
+            String reason = ex.getStatusCode().is4xxClientError()
+                    ? "Invalid refresh token"
+                    : "Auth server error";
+
+            loginLogService.logoutFailure(request.getEmail(), reason, request.getTimezone(), httpRequest);
+            throw new BadRequestException(reason);
+
+        } catch (Exception ex) {
+            loginLogService.logoutFailure(request.getEmail(), "Server error", request.getTimezone(), httpRequest);
+            throw new InternalServerException("Server error");
+        }
     }
 
     @Override

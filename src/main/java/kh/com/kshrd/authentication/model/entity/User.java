@@ -1,6 +1,8 @@
 package kh.com.kshrd.authentication.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import kh.com.kshrd.authentication.model.enums.Gender;
+import kh.com.kshrd.authentication.model.enums.LoginEventType;
 import kh.com.kshrd.authentication.model.enums.SchoolLevel;
 import kh.com.kshrd.authentication.model.enums.Role;
 import lombok.AllArgsConstructor;
@@ -10,6 +12,7 @@ import lombok.NoArgsConstructor;
 import org.keycloak.representations.idm.UserRepresentation;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -34,6 +37,11 @@ public class User {
     private SchoolLevel schoolLevel;
     private Integer grade;
     private String parentPhone;
+    private LoginEventType loginEventType;
+    private LocalDateTime lastLoginTime;
+    private LocalDateTime lastLogoutTime;
+    private String lastAction;
+    private LocalDateTime lastActivityTime;
 
     public static User toResponse(String role, UserRepresentation userRepresentation) {
 

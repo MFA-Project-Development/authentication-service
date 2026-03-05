@@ -2,7 +2,12 @@ package kh.com.kshrd.authentication.service.serviceimpl;
 
 import kh.com.kshrd.authentication.exception.NotFoundException;
 import kh.com.kshrd.authentication.model.dto.request.ProfileRequest;
+import kh.com.kshrd.authentication.model.entity.ActivityLog;
+import kh.com.kshrd.authentication.model.entity.LoginLog;
 import kh.com.kshrd.authentication.model.entity.User;
+import kh.com.kshrd.authentication.model.enums.LoginEventType;
+import kh.com.kshrd.authentication.repository.ActivityLogRepository;
+import kh.com.kshrd.authentication.repository.LoginLogRepository;
 import kh.com.kshrd.authentication.service.AuthenticationService;
 import kh.com.kshrd.authentication.service.ProfileService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +19,8 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.DateTimeException;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,6 +30,8 @@ public class ProfileServiceImpl implements ProfileService {
 
     private final Keycloak keycloak;
     private final AuthenticationService authenticationService;
+    private final LoginLogRepository loginLogRepository;
+    private final ActivityLogRepository activityLogRepository;
 
     @Value("${keycloak.realm}")
     private String realm;
@@ -38,9 +47,7 @@ public class ProfileServiceImpl implements ProfileService {
         try {
             userRep = userRes.toRepresentation();
         } catch (Exception e) {
-            throw new NotFoundException(
-                    "User not found : " + userId
-            );
+            throw new NotFoundException("User not found : " + userId);
         }
 
         String defaultRole = "default-roles-" + realm;
@@ -53,7 +60,63 @@ public class ProfileServiceImpl implements ProfileService {
                 .findFirst()
                 .orElse(null);
 
-        return User.toResponse(roleName, userRep);
+        User user = User.toResponse(roleName, userRep);
+
+        user.setLoginEventType(null);
+        user.setLastLoginTime(null);
+        user.setLastLogoutTime(null);
+        user.setLastAction(null);
+        user.setLastActivityTime(null);
+
+        ZoneId zone = ZoneId.of("UTC");
+
+        LoginLog loginLog = loginLogRepository
+                .findTopByEmailOrderByLoginTimeDesc(userRep.getEmail());
+
+        if (loginLog != null) {
+            LoginEventType type = loginLog.getLoginEventType();
+            user.setLoginEventType(type);
+
+            String tz = loginLog.getTimezone();
+            if (tz != null && !tz.isBlank()) {
+                try {
+                    zone = ZoneId.of(tz);
+                } catch (DateTimeException ignored) {
+                    zone = ZoneId.of("UTC");
+                }
+            }
+
+            if (type != null) {
+                switch (type) {
+                    case LOGIN_SUCCESS, LOGIN_FAILURE -> {
+                        if (loginLog.getLoginTime() != null) {
+                            user.setLastLoginTime(
+                                    loginLog.getLoginTime().atZone(zone).toLocalDateTime()
+                            );
+                        }
+                    }
+                    case LOGOUT_SUCCESS, LOGOUT_FAILURE -> {
+                        if (loginLog.getLogoutTime() != null) {
+                            user.setLastLogoutTime(
+                                    loginLog.getLogoutTime().atZone(zone).toLocalDateTime()
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
+        ActivityLog activityLog =
+                activityLogRepository.findByActor(userRep.getId()).orElse(null);
+
+        if (activityLog != null) {
+            user.setLastAction(activityLog.getAction());
+            user.setLastActivityTime(
+                    activityLog.getCreatedAt().atZone(zone).toLocalDateTime()
+            );
+        }
+
+        return user;
     }
 
     @Override

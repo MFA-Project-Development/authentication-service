@@ -71,4 +71,18 @@ public class GlobalException {
         return problemDetail;
     }
 
+    @ExceptionHandler(UnauthorizeException.class)
+    public ProblemDetail handleUnauthorizeException(UnauthorizeException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, e.getMessage());
+        problemDetail.setProperty("timestamp", LocalDateTime.now());
+        return problemDetail;
+    }
+
+    @ExceptionHandler(InternalServerException.class)
+    public ProblemDetail handleInternalException(InternalServerException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        problemDetail.setProperty("timestamp", LocalDateTime.now());
+        return problemDetail;
+    }
+
 }

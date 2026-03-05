@@ -23,4 +23,8 @@ public class SessionRequest {
     @NotBlank
     private String password;
 
+    @NotNull
+    @NotBlank
+    private String timezone;
+
 }

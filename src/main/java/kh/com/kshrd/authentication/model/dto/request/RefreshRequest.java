@@ -17,4 +17,12 @@ public class RefreshRequest {
     @NotBlank
     private String refreshToken;
 
+    @NotNull
+    @NotBlank
+    private String email;
+
+    @NotNull
+    @NotBlank
+    private String timezone;
+
 }

@@ -2,6 +2,8 @@ package kh.com.kshrd.authentication.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
+import kh.com.kshrd.authentication.model.annotation.AuditAction;
 import kh.com.kshrd.authentication.model.dto.request.ProfileRequest;
 import kh.com.kshrd.authentication.model.dto.response.APIResponse;
 import kh.com.kshrd.authentication.model.entity.User;
@@ -11,8 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 import static kh.com.kshrd.authentication.utils.ResponseUtil.buildResponse;
 
@@ -32,19 +32,31 @@ public class ProfileController {
             tags = "Profile"
     )
     public ResponseEntity<APIResponse<User>> profileInfo() {
-        return buildResponse("Profile retrieved successfully", profileService.profileInfo(), HttpStatus.OK);
+        return buildResponse(
+                "Profile retrieved successfully",
+                profileService.profileInfo(),
+                HttpStatus.OK
+        );
     }
 
+    @AuditAction("UPDATE_PROFILE")
     @PutMapping
     @Operation(
             summary = "Update profile information",
             description = "Update the currently authenticated user's profile details such as first name, last name, and profile image.",
             tags = "Profile"
     )
-    public ResponseEntity<APIResponse<User>> updateProfileInfo(@RequestBody ProfileRequest request) {
-        return buildResponse("Profile updated successfully", profileService.updateProfileInfo(request), HttpStatus.OK);
+    public ResponseEntity<APIResponse<User>> updateProfileInfo(
+            @RequestBody @Valid ProfileRequest request
+    ) {
+        return buildResponse(
+                "Profile updated successfully",
+                profileService.updateProfileInfo(request),
+                HttpStatus.OK
+        );
     }
 
+    @AuditAction("DELETE_PROFILE")
     @DeleteMapping
     @Operation(
             summary = "Delete profile information",
@@ -53,6 +65,10 @@ public class ProfileController {
     )
     public ResponseEntity<APIResponse<Void>> deleteProfileInfo() {
         profileService.deleteProfileInfo();
-        return buildResponse("Profile deleted successfully", null, HttpStatus.OK);
+        return buildResponse(
+                "Profile deleted successfully",
+                null,
+                HttpStatus.OK
+        );
     }
 }

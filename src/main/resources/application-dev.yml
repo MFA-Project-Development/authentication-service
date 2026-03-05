@@ -29,6 +29,23 @@ spring:
       port: 6379
       password: ${SPRING_DATA_REDIS_PASSWORD}
 
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  jpa:
+    database: postgresql
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+
 keycloak:
   server-url: http://localhost:8080/
   realm: mfa
@@ -47,6 +64,7 @@ springdoc:
 
 server:
   port: 8002
+  forward-headers-strategy: framework
 
 eureka:
   client:
