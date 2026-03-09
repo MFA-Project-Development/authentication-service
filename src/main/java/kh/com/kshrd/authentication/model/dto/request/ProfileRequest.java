@@ -23,11 +23,6 @@ public class ProfileRequest {
     @NotNull
     private String lastName;
 
-
-    @Pattern(
-            regexp = "^(https?://).+",
-            message = "Profile image must be a valid URL starting with http:// or https://"
-    )
     private String profileImage;
 
     @NotNull
