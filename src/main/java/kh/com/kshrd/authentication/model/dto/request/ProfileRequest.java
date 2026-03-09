@@ -28,10 +28,6 @@ public class ProfileRequest {
     @NotNull
     private Gender gender;
 
-    @Pattern(
-            regexp = "^\\+?[0-9]{8,20}$",
-            message = "Phone number must contain only digits and may start with + (8-20 digits)"
-    )
     private String phone;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -47,9 +43,5 @@ public class ProfileRequest {
     @Positive
     private Integer grade;
 
-    @Pattern(
-            regexp = "^\\+?[0-9]{8,20}$",
-            message = "Parent Phone number must contain only digits and may start with + (8-20 digits)"
-    )
     private String parentPhone;
 }
